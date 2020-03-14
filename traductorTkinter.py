@@ -10,6 +10,10 @@ import threading
 colBut="#909090"
 fuenteButt=("Arial Black",9)
 
+idiomaSelec="es"
+idiomaDetect=""
+textoIn=""
+
 raiz = Tk()
 raiz.config(bg="#505050")
 raiz.title("Traductor")
@@ -27,26 +31,29 @@ st2 = ScrolledText(derecha, height=10,font=("Courier",12),fg="white",bg="#303030
 st2.grid(row=1, column=0)
 
 def limpiar():
+	global textoIn
 	st1.delete(1.0,END)
 	st2.delete(1.0,END)
+	textoIn=""
 
-def traducir(destino,_select):
-	destino.delete(1.0,END)
-	textoIn=st1.get(1.0,END)
+def traducir():
+	global idiomaSelec
+	global idiomaDetect
+
+	st2.delete(1.0,END)
 	texto=tb(textoIn)
 	traduccion=""
 	def tradText():
 		global traduccion		
-		if texto.detect_language() != _select:
-			traduccion=str(texto.translate(to=_select))
+		if idiomaDetect != idiomaSelec:
+			traduccion=str(texto.translate(to=idiomaSelec))
 		else:
-			traduccion=texto
-		destino.insert(INSERT, traduccion)
+			traduccion=textoIn
+		st2.insert(INSERT, traduccion)
 	def audios():
-		global texto
 		global traduccion
 	#----- Preparacion del audio de entrada ----------
-		tts=gTTS(textoIn,lang=tb(textoIn).detect_language())
+		tts=gTTS(textoIn,lang=idiomaDetect)
 		try:
 			if open('mp3In.mp3'):
 				os.remove('mp3In.mp3')
@@ -56,7 +63,7 @@ def traducir(destino,_select):
 	#------ Preparacion del audio de salida -----------
 
 		texto=tb(traduccion)
-		tts=gTTS(traduccion,lang=texto.detect_language())
+		tts=gTTS(traduccion,lang=idiomaSelec)
 		try:
 			if open('mp3Out.mp3'):
 				os.remove('mp3Out.mp3')
@@ -68,31 +75,52 @@ def traducir(destino,_select):
 	hilo1.start()
 	hilo2.start()
 
+def shortcut(event):
+	global idiomaDetect
+	global idiomaSelec
+	global textoIn
+	if event.char == " " or event.char=="":
+		textoIn=st1.get(1.0,END)
+		if len(textoIn)>3 :
+			idiomaDetect=tb(textoIn).detect_language()
+			traducir()
+raiz.bind("<Key>", shortcut)
 def copiar(que):
+	raiz.clipboard_clear()
 	aClipboard=que.get(1.0,END)
 	raiz.clipboard_clear()
 	raiz.clipboard_append(aClipboard)
-def pegar(donde):	
+def pegar():
+	global textoIn	
 	try:
 		deClipBoard=raiz.clipboard_get()
-		donde.insert(INSERT,deClipBoard)
-		raiz.clipboard_clear()
+		st1.insert(INSERT,deClipBoard)
+		textoIn=st1.get(1.0,END)
+		if len(textoIn)>3 :
+			idiomaDetect=tb(textoIn).detect_language()
+			traducir()
 	except:
 		pass
 def escuchar(_que):	
 	ps(_que)
+
+def selecIdioma(_sel):
+	global idiomaSelec
+	idiomaSelec=_sel
+	traducir()
+
 supIzq=Frame(izquierda)
 supIzq.grid(row=0,column=0,sticky="w")
-pegar=Button(supIzq,text="Pegar",font=fuenteButt,bg=colBut,command=partial(pegar,st1)).grid(row=0,column=0)
+pegar=Button(supIzq,text="Pegar",font=fuenteButt,bg=colBut,command=partial(pegar)).grid(row=0,column=0)
 limpiar=Button(supIzq,text="Limpiar",font=fuenteButt,bg=colBut,command=limpiar).grid(row=0,column=2)
 
 supDer=Frame(derecha)
 supDer.grid(row=0,column=0,sticky="w")
 
-esp=Button(supDer, text="Español",font=fuenteButt,bg=colBut,command=partial(traducir,st2,"es")).grid(row=0,column=1)
-ing=Button(supDer, text="Ingles",font=fuenteButt,bg=colBut,command=partial(traducir,st2,"en")).grid(row=0,column=2)
-ita=Button(supDer, text="Italiano",font=fuenteButt,bg=colBut,command=partial(traducir,st2,"it")).grid(row=0,column=3)
-por=Button(supDer, text="Ruso",font=fuenteButt,bg=colBut,command=partial(traducir,st2,"ru")).grid(row=0,column=4)
+esp=Button(supDer, text="Español",font=fuenteButt,bg=colBut,command=partial(selecIdioma,"es")).grid(row=0,column=1)
+ing=Button(supDer, text="Ingles",font=fuenteButt,bg=colBut,command=partial(selecIdioma,"en")).grid(row=0,column=2)
+ita=Button(supDer, text="Italiano",font=fuenteButt,bg=colBut,command=partial(selecIdioma,"it")).grid(row=0,column=3)
+por=Button(supDer, text="Ruso",font=fuenteButt,bg=colBut,command=partial(selecIdioma,"ru")).grid(row=0,column=4)
 
 botonCopiar=Button(derecha,text="copiar",font=fuenteButt,bg=colBut,command=partial(copiar,st2))
 botonCopiar.grid(row=0,column=0,sticky="e",padx=16)
@@ -110,5 +138,3 @@ Button(infDer,text="Escuchar",font=fuenteButt,bg=colBut,command=partial(escuchar
 raiz.mainloop()
 os.remove('mp3Out.mp3')
 os.remove('mp3In.mp3')
-
-
