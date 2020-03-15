@@ -6,9 +6,14 @@ from tkinter.scrolledtext import ScrolledText
 from functools import *
 import os
 import threading
+from ctypes import windll
+
+ancho = int(windll.user32.GetSystemMetrics(0)/21)
+
 
 colBut="#909090"
 fuenteButt=("Arial Black",9)
+
 
 idiomaSelec="es"
 idiomaDetect=""
@@ -24,10 +29,10 @@ izquierda.grid(row=0,column=0,padx=10)
 derecha=Frame(raiz,bg="#505050")
 derecha.grid(row=0,column=1)
 
-st1 = ScrolledText(izquierda, height=10,font=("Courier New",12),fg="white",bg="#303030")
+st1 = ScrolledText(izquierda,width=ancho, height=10,font=("Courier New",12),fg="#FF9900",bg="#303030")
 st1.grid(row=1, column=0)
 
-st2 = ScrolledText(derecha, height=10,font=("Courier",12),fg="white",bg="#303030")
+st2 = ScrolledText(derecha,width=ancho, height=10,font=("Courier",12),fg="#FF9900",bg="#303030")
 st2.grid(row=1, column=0)
 
 def limpiar():
@@ -79,7 +84,7 @@ def shortcut(event):
 	global idiomaDetect
 	global idiomaSelec
 	global textoIn
-	if event.char == " " or event.char=="":
+	if event.char == " " or event.char==" ":
 		textoIn=st1.get(1.0,END)
 		if len(textoIn)>3 :
 			idiomaDetect=tb(textoIn).detect_language()
@@ -117,7 +122,7 @@ limpiar=Button(supIzq,text="Limpiar",font=fuenteButt,bg=colBut,command=limpiar).
 supDer=Frame(derecha)
 supDer.grid(row=0,column=0,sticky="w")
 
-esp=Button(supDer, text="Español",font=fuenteButt,bg=colBut,command=partial(selecIdioma,"es")).grid(row=0,column=1)
+esp=Button(supDer, text="EspaÃ±ol",font=fuenteButt,bg=colBut,command=partial(selecIdioma,"es")).grid(row=0,column=1)
 ing=Button(supDer, text="Ingles",font=fuenteButt,bg=colBut,command=partial(selecIdioma,"en")).grid(row=0,column=2)
 ita=Button(supDer, text="Italiano",font=fuenteButt,bg=colBut,command=partial(selecIdioma,"it")).grid(row=0,column=3)
 por=Button(supDer, text="Ruso",font=fuenteButt,bg=colBut,command=partial(selecIdioma,"ru")).grid(row=0,column=4)
