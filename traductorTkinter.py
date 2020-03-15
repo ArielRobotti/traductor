@@ -84,7 +84,7 @@ def shortcut(event):
 	global idiomaDetect
 	global idiomaSelec
 	global textoIn
-	if event.char == " " or event.char==" ":
+	if event.char == " " or event.char=="<0x16>":
 		textoIn=st1.get(1.0,END)
 		if len(textoIn)>3 :
 			idiomaDetect=tb(textoIn).detect_language()
