@@ -71,7 +71,6 @@ def traducir():
 		tts.save('mp3In.mp3')
 		botMP3Entrada.config(state='normal')
 	#------ Preparacion del audio de salida -----------
-
 		texto=tb(traduccion)
 		tts=gTTS(traduccion,lang=idiomaSelec)
 		try:
@@ -111,7 +110,6 @@ def pegar():
 		textoIn=st1.get(1.0,END)
 		if len(textoIn)>3 :
 			idiomaDetect=str(tb(textoIn).detect_language())
-
 			traducir()
 	except:
 		pass
@@ -120,25 +118,41 @@ def escuchar(_que):
 
 def selecIdioma(_sel):
 	global idiomaSelec
+	global textoIn
+	textoIn=st1.get(1.0,END)
 	idiomaSelec=_sel
-	
-	traducir()
+	botones=[esp,ing,ita,rus,por,ger]
+	for i in botones:	
+		i.config(bg=colBut)
+	if _sel == "es": esp.config(bg="#90BB90")
+	elif _sel == "en": ing.config(bg="#90BB90")
+	elif _sel == "it": ita.config(bg="#90BB90")
+	elif _sel == "ru": rus.config(bg="#90BB90")
+	elif _sel == "pt": por.config(bg="#90BB90")
+	elif _sel == "de": ger.config(bg="#90BB90")
+	if len(textoIn)>2:
+		traducir()
 
 supIzq=Frame(izquierda)
 supIzq.grid(row=0,column=0,sticky="w")
 pegar=Button(supIzq,text="Pegar",font=fuenteButt,bg=colBut,command=partial(pegar)).grid(row=0,column=0)
 limpiar=Button(supIzq,text="Limpiar",font=fuenteButt,bg=colBut,command=limpiar).grid(row=0,column=2)
 
-
 supDer=Frame(derecha)
 supDer.grid(row=0,column=0,sticky="w")
 
-esp=Button(supDer, text="EspaÃ±ol",font=fuenteButt,bg=colBut,command=partial(selecIdioma,"es")).grid(row=0,column=1)
-ing=Button(supDer, text="Ingles",font=fuenteButt,bg=colBut,command=partial(selecIdioma,"en")).grid(row=0,column=2)
-ita=Button(supDer, text="Italiano",font=fuenteButt,bg=colBut,command=partial(selecIdioma,"it")).grid(row=0,column=3)
-pus=Button(supDer, text="Ruso",font=fuenteButt,bg=colBut,command=partial(selecIdioma,"ru")).grid(row=0,column=4)
-por=Button(supDer, text="PortuguÃ©s",font=fuenteButt,bg=colBut,command=partial(selecIdioma,"pt")).grid(row=0,column=5)
-ger=Button(supDer, text="AlemÃ¡n",font=fuenteButt,bg=colBut,command=partial(selecIdioma,"de")).grid(row=0,column=6)
+esp=Button(supDer, text="Español",font=fuenteButt,bg="#90BB90",command=partial(selecIdioma,"es"))
+esp.grid(row=0,column=1)
+ing=Button(supDer, text="Ingles",font=fuenteButt,bg=colBut,command=partial(selecIdioma,"en"))
+ing.grid(row=0,column=2)
+ita=Button(supDer, text="Italiano",font=fuenteButt,bg=colBut,command=partial(selecIdioma,"it"))
+ita.grid(row=0,column=3)
+rus=Button(supDer, text="Ruso",font=fuenteButt,bg=colBut,command=partial(selecIdioma,"ru"))
+rus.grid(row=0,column=4)
+por=Button(supDer, text="Portugues",font=fuenteButt,bg=colBut,command=partial(selecIdioma,"pt"))
+por.grid(row=0,column=5)
+ger=Button(supDer, text="Aleman",font=fuenteButt,bg=colBut,command=partial(selecIdioma,"de"))
+ger.grid(row=0,column=6)
 
 botonCopiar=Button(derecha,text="copiar",font=fuenteButt,bg=colBut,command=partial(copiar,st2))
 botonCopiar.grid(row=0,column=0,sticky="e",padx=16)
@@ -154,7 +168,6 @@ infDer.grid(row=3,column=0,sticky="w")
 
 botMP3Salida=Button(infDer,text="Escuchar",state='disabled',font=fuenteButt,bg=colBut,command=partial(escuchar,'mp3Out.mp3'))
 botMP3Salida.grid(row=3,column=0)
-
 
 raiz.mainloop()
 os.remove('mp3Out.mp3')
