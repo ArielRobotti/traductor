@@ -3,10 +3,11 @@ from textblob import TextBlob as tb
 from playsound import playsound as ps
 from tkinter import *
 from tkinter.scrolledtext import ScrolledText
-from functools import *
+from functools import partial
 import os
 import threading
 from ctypes import windll
+import speech_recognition as sr
 
 anchoWin = int(windll.user32.GetSystemMetrics(0)/21)
 
@@ -41,9 +42,7 @@ def limpiar():
 	textoIn=""
 	botMP3Salida.config(state='disabled')
 	botMP3Entrada.config(state='disabled')
-
 def traducir():
-
 	st2.delete(1.0,END)
 	texto=tb(textoIn)
 	botMP3Salida.config(state='disabled')
@@ -64,9 +63,8 @@ def traducir():
 	#----- Preparacion del audio de entrada ----------
 		tts=gTTS(textoIn,lang=idiomaDetect)
 		try:
-			if open('mp3In.mp3'):
-				os.remove('mp3In.mp3')
-		except FileNotFoundError:
+			os.remove('mp3In.mp3')
+		except :
 			pass
 		tts.save('mp3In.mp3')
 		botMP3Entrada.config(state='normal')
@@ -74,9 +72,8 @@ def traducir():
 		texto=tb(traduccion)
 		tts=gTTS(traduccion,lang=idiomaSelec)
 		try:
-			if open('mp3Out.mp3'):
-				os.remove('mp3Out.mp3')
-		except FileNotFoundError:
+			os.remove('mp3Out.mp3')
+		except:
 			pass
 		tts.save('mp3Out.mp3')
 		botMP3Salida.config(state='normal')
@@ -85,7 +82,6 @@ def traducir():
 	hilo2=threading.Thread(target=audios)
 	hilo1.start()
 	hilo2.start()
-
 def shortcut(event):
 	global idiomaDetect
 	global textoIn
@@ -93,7 +89,6 @@ def shortcut(event):
 		textoIn=st1.get(1.0,END)
 		if len(textoIn)>3 :
 			idiomaDetect=str(tb(textoIn).detect_language())
-			print(idiomaDetect)
 			traducir()
 raiz.bind("<Key>", shortcut)
 def copiar(que):
@@ -115,7 +110,22 @@ def pegar():
 		pass
 def escuchar(_que):	
 	ps(_que)
-
+def hablar():
+	global textoIn
+	global idiomaDetect
+	r = sr.Recognizer()
+	texto=""
+	with sr.Microphone() as source:
+		audio = r.listen(source)
+		try:
+			texto=r.recognize_google(audio,language="es")
+		except:
+			print("No se entiende")
+	st1.insert(INSERT," "+texto)
+	textoIn=st1.get(1.0,END)
+	if len(textoIn)>3 :
+		idiomaDetect=str(tb(textoIn).detect_language())
+		traducir()	
 def selecIdioma(_sel):
 	global idiomaSelec
 	global textoIn
@@ -162,6 +172,8 @@ infIzq.grid(row=3,column=0,sticky="w")
 
 botMP3Entrada=Button(infIzq,text="Escuchar",state='disabled',font=fuenteButt,bg=colBut,command=partial(escuchar,'mp3In.mp3'))
 botMP3Entrada.grid(row=3,column=0)
+btnDictado=Button(infIzq,text="Dictado por voz",font=fuenteButt,bg=colBut,command=partial(hablar))
+btnDictado.grid(row=3,column=1)
 
 infDer=Frame(derecha)
 infDer.grid(row=3,column=0,sticky="w")
@@ -170,5 +182,11 @@ botMP3Salida=Button(infDer,text="Escuchar",state='disabled',font=fuenteButt,bg=c
 botMP3Salida.grid(row=3,column=0)
 
 raiz.mainloop()
-os.remove('mp3Out.mp3')
-os.remove('mp3In.mp3')
+try: 
+	os.remove('mp3Out.mp3')
+except:
+	pass
+try: 
+	os.remove('mp3In.mp3')
+except:
+	pass
