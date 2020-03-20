@@ -43,6 +43,7 @@ def limpiar():
 	botMP3Salida.config(state='disabled')
 	botMP3Entrada.config(state='disabled')
 def traducir():
+
 	st2.delete(1.0,END)
 	texto=tb(textoIn)
 	botMP3Salida.config(state='disabled')
